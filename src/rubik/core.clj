@@ -12,17 +12,17 @@
       (assoc-in [:colors face1] (get-in cubie [:colors face2]))
       (assoc-in [:colors face2] (get-in cubie [:colors face1]))))
 
-(defn rotate-xy
+(defn rotate-in-xy-plane
   [cubie]
   (update cubie :position
           (fn [[x y z]]
             (conj (rotate-90 [x y]) z))))
 
-(defn rotate-x
+(defn rotate-row
   [cubies]
   (map (fn [c]
          (-> c
-             (rotate-xy)
+             (rotate-in-xy-plane)
              ((partial swap-faces :x :y)))) cubies))
 
 (defn -main

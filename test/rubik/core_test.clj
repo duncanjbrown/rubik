@@ -20,9 +20,9 @@
     (is (=
           {:position
            [-1 1 1]}
-          (rotate-xy {:position [1 1 1]}))))
+          (rotate-in-xy-plane {:position [1 1 1]}))))
 
-  (testing "rotate-x"
+  (testing "rotate-row"
     (is (=
          [
           {:colors
@@ -35,7 +35,7 @@
            {:x :orange :y :green :z :white}
            :position [1 1 1]}
           ]
-         (rotate-x
+         (rotate-row
           [
            {:colors
             {:x :green :y :red :z :white}
