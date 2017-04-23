@@ -22,30 +22,17 @@
            [-1 1 1]}
           (rotate-in-xy-plane {:position [1 1 1]}))))
 
-  (testing "rotate-row"
+  (testing "rotate-yz"
     (is (=
-         [
-          {:colors
-           {:x :red :y :green :z :white}
-           :position [1 -1 1]}
-          {:colors
-           {:x nil :y :green :z :white}
-           :position [1 0 1]}
-          {:colors
-           {:x :orange :y :green :z :white}
-           :position [1 1 1]}
-          ]
-         (rotate-row
-          [
-           {:colors
-            {:x :green :y :red :z :white}
-            :position [-1 -1 1]}
-           {:colors
-            {:x :green :y nil :z :white}
-            :position [0 -1 1]}
-           {:colors
-            {:x :green :y :orange :z :white}
-            :position [1 -1 1]}
-           ]
-           ))))
+          {:position
+           [1 -1 0]}
+          (rotate-in-yz-plane {:position [1 0 1]})))
+    (is (=
+          {:position
+           [1 -1 -1]}
+          (rotate-in-yz-plane {:position [1 -1 1]})))
+    (is (=
+          {:position
+           [1 -1 1]}
+          (rotate-in-yz-plane {:position [1 1 1]}))))
   )
