@@ -4,24 +4,6 @@ A clojure program to model a rubik's cube.
 
 I'm a clojure novice. Some code may be peculiar.
 
-## Usage
-
-@todo
-
-## Options
-
-@todo
-
-## Examples
-
-@todo
-
-### Bugs
-
-@todo
-
-## License
-
 Copyright © 2017 Duncan Brown
 
 This is public domain software distributed under the Creative 
