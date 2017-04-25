@@ -7,95 +7,102 @@
   (vec (map int (m/mmul [[0 -1] [1 0]] vctr))))
 
 (defn swap-faces
-  [face1 face2 cubie]
-  (-> cubie
-      (assoc-in [:colors face1] (get-in cubie [:colors face2]))
-      (assoc-in [:colors face2] (get-in cubie [:colors face1]))))
+  [face1 face2 piece]
+  (-> piece
+      (assoc-in [:colors face1] (get-in piece [:colors face2]))
+      (assoc-in [:colors face2] (get-in piece [:colors face1]))))
 
-(defn rotate-in-xy-plane
-  [cubie]
-  (update cubie :position
-          (fn [[x y z]]
-            (conj (rotate-90 [x y]) z))))
+(defn rotate-around-axis
+  [axis-of-rotation]
+  (let [axes (remove #{axis-of-rotation} [:x :y :z])]
+    (fn [piece]
+      (update piece :position
+              (fn [coords]
+                (into coords (zipmap axes (rotate-90 (map coords axes)))))))))
 
-(defn rotate-in-yz-plane
-  [cubie]
-  (update cubie :position
-          (fn [[x y z]]
-            (cons x (rotate-90 [y z])))))
+(defn rotate-piece-around-axis
+  [axis piece]
+  (let [other-axes (remove #{axis} [:x :y :z])]
+    (-> piece
+      ((rotate-around-axis axis))
+      ((apply partial swap-faces other-axes)))))
 
-(defn rotate-row
-  [cubies]
-  (map (fn [c]
-         (-> c
-             (rotate-in-xy-plane)
-             ((partial swap-faces :x :y)))) cubies))
+;; (defn get-face
+;;   [cube face]
+;;   (let [mapping (face-mapping face)
+;;         aspect (:aspect mapping)
+;;         pieces (filter (:filter mapping) cube)]
+;;  (partition 3 (map aspect (map :colors (case aspect
+;;       :x (sort-by #(:y (:position %)) > (sort-by #(:z (:position %)) > pieces))
+;;       :y (sort-by #(:x (:position %)) > (sort-by #(:z (:position %)) > pieces))
+;;       :z (sort-by #(:x (:position %)) > (sort-by #(:y (:position %)) > pieces))
+;;       ))))))
 
-(defn rotate-column
-  [cubies]
-  (map (fn [c]
-         (-> c
-             (rotate-in-yz-plane)
-             ((partial swap-faces :y :z)))) cubies))
+(defn get-face
+  [cube face]
+  (let [mapping (face-mapping face)
+        aspect (:aspect mapping)]
+    (filter (:filter mapping cube))))
 
-(defn rotate-row-n
-  [cube n]
-  (let [pred #(= n (last (:position %)))]
-    (concat 
-      (remove pred cube)
-      (rotate-row (filter pred cube)))))
+(defn move
+  [axis offset cube]
+  (let [to-rotate (filter #(= offset (axis (:position %))) cube)]
+    (println to-rotate)
+    (into
+      (remove (set to-rotate) cube)
+      (map (partial rotate-piece-around-axis axis) to-rotate))))
 
 (def default-cube [
                    ;; Top of cube
-                   {:position [0 0 1]
+                   {:position {:x 0 :y 0 :z 1}
                     :colors {
                              :x nil
                              :y nil
                              :z :white
                              }}
-                   {:position [-1 -1 1]
+                   {:position {:x -1 :y -1 :z 1}
                     :colors {
                              :y :green
                              :x :orange
                              :z :white
                              }}
-                  {:position [-1 0 1]
+                  {:position {:x -1 :y 0 :z 1}
                    :colors {
                             :y nil
                             :x :orange
                             :z :white
                             }}
-                  {:position [-1 1 1]
+                  {:position {:x -1 :y 1 :z 1}
                    :colors {
                             :y :blue
                             :x :orange
                             :z :white
                             }}
-                  {:position [0 1 1]
+                  {:position {:x 0 :y 1 :z 1}
                    :colors {
                             :y :blue
                             :x nil
                             :z :white
                             }}
-                  {:position [1 1 1]
+                  {:position {:x 1 :y 1 :z 1}
                    :colors {
                             :y :blue
                             :x :red
                             :z :white
                             }}
-                  {:position [1 0 1]
+                  {:position {:x 1 :y 0 :z 1}
                    :colors {
                             :y nil
                             :x :red
                             :z :white
                             }}
-                  {:position [1 -1 1]
+                  {:position {:x 1 :y -1 :z 1}
                    :colors {
                             :y :green
                             :x :red
                             :z :white
                             }}
-                  {:position [0 -1 1]
+                  {:position {:x 0 :y -1 :z 1}
                    :colors {
                             :y :green
                             :x nil
@@ -104,49 +111,49 @@
 
 
                   ;; Middle of cube
-                  {:position [-1 -1 0]
+                  {:position {:x -1 :y -1 :z 0}
                    :colors {
                             :y :green
                             :x :orange
                             :z nil
                             }}
-                  {:position [-1 0 0]
+                  {:position {:x -1 :y 0 :z 0}
                    :colors {
                             :y nil
                             :x :orange
                             :z nil
                             }}
-                  {:position [-1 1 0]
+                  {:position {:x -1 :y 1 :z 0}
                    :colors {
                             :y :blue
                             :x :orange
                             :z nil
                             }}
-                  {:position [0 1 0]
+                  {:position {:x 0 :y 1 :z 0}
                    :colors {
                             :y :blue
                             :x nil
                             :z nil
                             }}
-                  {:position [1 1 0]
+                  {:position {:x 1 :y 1 :z 0}
                    :colors {
                             :y :blue
                             :x :red
                             :z nil
                             }}
-                  {:position [1 0 0]
+                  {:position {:x 1 :y 0 :z 0}
                    :colors {
                             :y nil
                             :x :red
                             :z nil
                             }}
-                  {:position [1 -1 0]
+                  {:position {:x 1 :y -1 :z 0}
                    :colors {
                             :y :green
                             :x :red
                             :z nil
                             }}
-                  {:position [0 -1 0]
+                  {:position {:x 0 :y -1 :z 0}
                     :colors {
                             :y :green
                             :x nil
@@ -155,55 +162,90 @@
 
                   ;; Bottom of cube
 
-                  {:position [-1 -1 -1]
+                  {:position {:x -1 :y -1 :z -1}
                    :colors {
                             :y :green
                             :x :orange
                             :z :yellow
                             }}
-                 {:position [-1 0 -1]
+                 {:position {:x -1 :y 0 :z -1}
                   :colors {
                            :y nil
                            :x :orange
                            :z :yellow
                            }}
-                 {:position [-1 1 -1]
+                 {:position {:x -1 :y 1 :z -1}
                   :colors {
                            :y :blue
                            :x :orange
                            :z :yellow
                            }}
-                 {:position [0 1 -1]
+                 {:position {:x 0 :y 1 :z -1}
                   :colors {
                            :y :blue
                            :x nil
                            :z :yellow
                            }}
-                 {:position [1 1 -1]
+                 {:position {:x 1 :y 1 :z -1}
                   :colors {
                            :y :blue
                            :x :red
                            :z :yellow
                            }}
-                 {:position [1 0 -1]
+                 {:position {:x 1 :y 0 :z -1}
                   :colors {
                            :y nil
                            :x :red
                            :z :yellow
                            }}
-                 {:position [1 -1 -1]
+                 {:position {:x 1 :y -1 :z -1}
                   :colors {
                            :y :green
                            :x :red
                            :z :yellow
                            }}
-                 {:position [0 -1 -1]
+                 {:position {:x 0 :y -1 :z -1}
                   :colors {
                            :y :green
                            :x nil
                            :z :yellow
                            }}
+                  {:position {:x 0 :y 0 :z -1}
+                  :colors {
+                            :y nil
+                            :x nil
+                            :z :yellow
+                            }}
                    ])
+
+(defn face-mapping
+  [face]
+  (face {
+         :N {
+             :filter #(= 1 (:y (:position %)))
+             :aspect :y
+             }
+         :S {
+             :filter #(= -1 (:y (:position %)))
+             :aspect :y
+             }
+         :W {
+             :filter #(= 1 (:x (:position %)))
+             :aspect :x
+             }
+         :E {
+             :filter #(= -1 (:x (:position %)))
+             :aspect :x
+             }
+         :U {
+             :filter #(= 1 (:z (:position %)))
+             :aspect :z
+             }
+         :D {
+             :filter #(= -1 (:z (:position %)))
+             :aspect :z
+             }
+         }))
 
 (defn -main
   "I don't do a whole lot ... yet."
