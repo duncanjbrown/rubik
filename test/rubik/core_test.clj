@@ -1,5 +1,6 @@
 (ns rubik.core-test
   (:require [clojure.test :refer :all]
+            [rubik.cube :refer :all]
             [rubik.core :refer :all]))
 
 (deftest query-test
