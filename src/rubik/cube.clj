@@ -176,15 +176,15 @@
              }
          :S {
              :filter #(= -1 (:y (:position %)))
-             :aspect :y
+             :aspect :y'
              }
          :W {
-             :filter #(= 1 (:x (:position %)))
+             :filter #(= -1 (:x (:position %)))
              :aspect :x
              }
          :E {
-             :filter #(= -1 (:x (:position %)))
-             :aspect :x
+             :filter #(= 1 (:x (:position %)))
+             :aspect :x'
              }
          :U {
              :filter #(= 1 (:z (:position %)))
@@ -192,6 +192,6 @@
              }
          :D {
              :filter #(= -1 (:z (:position %)))
-             :aspect :z
+             :aspect :z'
              }
          }))

@@ -18,14 +18,24 @@
   (filter (:filter (face-mapping face)) cube))
 
 (defn sort-pieces-by-axis
-  [axis pieces]
-  (sort-by #(axis (:position %)) > pieces))
+  [axis operator pieces]
+  (sort-by #(axis (:position %)) operator pieces))
 
-(defn get-aspect
-  "Infer a face from a set of pieces, if possible. If not, return nil."
-  [pieces]
-  (first (drop-while (fn 
-                       [axis]
-                       (apply not= (map (comp axis :position) pieces))
-                       ) [:x :y :z]))
-  )
+(defn get-sorted-face
+  [face cube]
+  (let [aspect (:aspect (face-mapping face))
+        pieces (get-face face cube)]
+  (case aspect
+        :x (flatten (map (partial sort-pieces-by-axis :y >) 
+                (partition 3 (sort-pieces-by-axis :z > pieces))))
+        :x' (flatten (map (partial sort-pieces-by-axis :y <) 
+                (partition 3 (sort-pieces-by-axis :z > pieces))))
+        :y (flatten (map (partial sort-pieces-by-axis :x >) 
+                (partition 3 (sort-pieces-by-axis :z > pieces))))
+        :y' (flatten (map (partial sort-pieces-by-axis :x <) 
+                (partition 3 (sort-pieces-by-axis :z > pieces))))
+        :z (flatten (map (partial sort-pieces-by-axis :x <) 
+                (partition 3 (sort-pieces-by-axis :y > pieces))))
+        :z' (flatten (map (partial sort-pieces-by-axis :x <) 
+                (partition 3 (sort-pieces-by-axis :y < pieces))))
+        )))
